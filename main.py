@@ -17,7 +17,7 @@ class Game:
             elif player == "wedge_ai":
                 self.players.append(AIPlayer(turn, WedgeStrategy()))
             else:
-                raise NotImplemented
+                raise Exception("Invalid player choice")
         self._board = Board()
 
     def start(self) -> int:
@@ -32,7 +32,7 @@ class Game:
                     row, col = player.get_move(self._board)
                     self._board.place(row, col, player.turn)
                 else:
-                    print(f"{player.color} has no moves, skipping.")
+                    player.print_no_moves()
             if players_stuck:
                 return self._board.get_winner()
 

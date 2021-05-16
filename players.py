@@ -14,10 +14,13 @@ class Player:
         self.color = PLAYER_MAPPINGS[turn]
 
     def print_board(self, board_: Board) -> None:
-        raise NotImplemented
+        raise NotImplementedError
+
+    def print_no_moves(self) -> None:
+        raise NotImplementedError
 
     def get_move(self, board_: Board) -> (int, int):
-        raise NotImplemented
+        raise NotImplementedError
 
     def has_valid_move(self, board_: Board) -> bool:
         return board_.has_valid_move(self.turn)
@@ -28,6 +31,9 @@ class HumanPlayer(Player):
     def print_board(self, board_: Board) -> None:
         print(board_)
         print(f"{self.color}'s turn.")
+
+    def print_no_moves(self) -> None:
+        print(f"{self.color} has no moves, skipping.")
 
     def get_move(self, board_: Board) -> (int, int):
         move = input("Provide coords as '<int>, <int>': ")
@@ -52,6 +58,9 @@ class AIPlayer(Player):
         self.strategy = strategy
 
     def print_board(self, board_: Board) -> None:
+        pass  # Robots don't need visuals
+
+    def print_no_moves(self) -> None:
         pass  # Robots don't need visuals
 
     def get_move(self, board_: Board) -> (int, int):

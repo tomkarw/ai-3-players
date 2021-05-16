@@ -3,7 +3,7 @@ from board import Board
 
 class Strategy:
     def get_move(self, board_: Board) -> (int, int):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class GreedyStrategy(Strategy):
@@ -12,7 +12,7 @@ class GreedyStrategy(Strategy):
         Move decision with greedy strategy based on board state.
         """
         # TODO(tkarwowski)
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class WeightedSumStrategy(Strategy):
@@ -21,7 +21,7 @@ class WeightedSumStrategy(Strategy):
         Move decision with weighted sum strategy based on board state.
         """
         # TODO(tkarwowski)
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class WedgeStrategy(Strategy):
@@ -30,4 +30,4 @@ class WedgeStrategy(Strategy):
         Move decision with wedge strategy based on board state.
         """
         # TODO(tkarwowski)
-        raise NotImplemented
+        raise NotImplementedError
