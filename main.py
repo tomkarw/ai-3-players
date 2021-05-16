@@ -1,74 +1,38 @@
-from dataclasses import dataclass
-
-from colorama import Back, Style
-
-EMPTY = -1
+from board import Board
+from players import HumanPlayer, AIPlayer
+from strategies import GreedyStrategy, WeightedSumStrategy, WedgeStrategy
 
 
-class Color:
-    WHITE = r"\e[47m"
-    BLACK = r"\e[40m"
-    RED = r"\e[41m"
-    RESET = r"\033[0m"
+class Game:
 
-    list = [WHITE, BLACK, RED]
+    def __init__(self, players_type: list):
+        self.players = []
+        for turn, player in enumerate(players_type):
+            if player == "human":
+                self.players.append(HumanPlayer(turn))
+            elif player == "greedy_ai":
+                self.players.append(AIPlayer(turn, GreedyStrategy()))
+            elif player == "weighted_sum_ai":
+                self.players.append(AIPlayer(turn, WeightedSumStrategy()))
+            elif player == "wedge_ai":
+                self.players.append(AIPlayer(turn, WedgeStrategy()))
+            else:
+                raise NotImplemented("Player type not implemented!")
+        self._board = Board()
 
-
-@dataclass
-class Board:
-    """
-    Stateful board of othello game
-    """
-    _board: list[list[int]]
-    rows: int = 9
-    columns: int = 9
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._board = [[EMPTY for _ in range(self.columns)] for _ in range(self.rows)]
-
-    def __str__(self):
-        # top line
-        output = Back.GREEN + " ".join(["+"] + (["-  "] * self.columns)[:-1] + [f"- +{Style.RESET_ALL}\n"])
-        # iterate over all but last row
-        for row_num, row in enumerate(self._board):
-            output += f"{Back.GREEN}|"
-            for cell in row:
-                output += self.print_piece(cell) + "|"
-            output += f"{Style.RESET_ALL}\n"
-            if row_num != self.rows - 1:
-                output += Back.GREEN + " ".join([" "] + ["-  "] * self.columns) + Style.RESET_ALL + "\n"
-        # bottom line
-        output += Back.GREEN + " ".join(["+"] + (["-  "] * self.columns)[:-1] + [f"- +{Style.RESET_ALL}\n"])
-        return output
-
-    @staticmethod
-    def print_piece(cell):
-        color = None
-        if cell == 0:
-            color = Back.WHITE
-        elif cell == 1:
-            color = Back.BLACK
-        elif cell == 2:
-            color = Back.RED
-        return f"{color or ''}   {Back.GREEN}"
-
-    def setup_three_players(self):
-        """
-        Create starting position for 3 player game
-        """
-        self._board[3][3] = self._board[3][5] = self._board[4][4] = 0  # white
-        self._board[3][4] = self._board[5][3] = self._board[5][5] = 1  # black
-        self._board[4][3] = self._board[4][5] = self._board[5][4] = 2  # red
-
-    def place(self, row: int, column: int, player: int):
-        self.validate_placing(row, column, player)
-
-    def validate_placing(self, row: int, column: int, player: int):
-        pass
+    def start(self) -> int:
+        self._board.setup_three_players()
+        game_end = False
+        while not game_end:
+            for player in self.players:
+                player.print_board(self._board)
+                row, col = player.get_move(self._board)
+                self._board.place(row, col, player.turn)
+                if (winner := self._board.check_win()) is not None:
+                    return winner
 
 
 if __name__ == "__main__":
-    board = Board()
-    board.setup_three_players()
-    print(board)
+    game = Game(players_type=["human", "human", "human"])
+    winner_ = game.start()
+    print(f"Congratulations {game.players[winner_].color}, you win!")
