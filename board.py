@@ -29,19 +29,25 @@ class Board:
         super().__init__()
         self._board = [[EMPTY for _ in range(self.columns)] for _ in range(self.rows)]
 
+    def topbot_line(self) -> str:
+        return "  " + Back.GREEN + " ".join(["+"] + (["-  "] * self.columns)[:-1] + [f"- +{Style.RESET_ALL}\n"])
+
     def __str__(self):
+        output = ""
+        # column numbering
+        output += "    " + "   ".join(map(str, range(self.columns))) + "\n"
         # top line
-        output = Back.GREEN + " ".join(["+"] + (["-  "] * self.columns)[:-1] + [f"- +{Style.RESET_ALL}\n"])
+        output += self.topbot_line()
         # iterate over all but last row
         for row_num, row in enumerate(self._board):
-            output += f"{Back.GREEN}|"
+            output += f"{row_num} {Back.GREEN}|"
             for cell in row:
                 output += self.print_piece(cell) + "|"
             output += f"{Style.RESET_ALL}\n"
             if row_num != self.rows - 1:
-                output += Back.GREEN + " ".join([" "] + ["-  "] * self.columns) + Style.RESET_ALL + "\n"
+                output += "  " + Back.GREEN + " ".join([" "] + ["-  "] * self.columns) + Style.RESET_ALL + "\n"
         # bottom line
-        output += Back.GREEN + " ".join(["+"] + (["-  "] * self.columns)[:-1] + [f"- +{Style.RESET_ALL}\n"])
+        output += self.topbot_line()
         return output
 
     @staticmethod
