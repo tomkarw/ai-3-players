@@ -17,19 +17,24 @@ class Game:
             elif player == "wedge_ai":
                 self.players.append(AIPlayer(turn, WedgeStrategy()))
             else:
-                raise NotImplemented("Player type not implemented!")
+                raise NotImplemented
         self._board = Board()
 
     def start(self) -> int:
         self._board.setup_three_players()
         game_end = False
         while not game_end:
+            players_stuck = True
             for player in self.players:
                 player.print_board(self._board)
-                row, col = player.get_move(self._board)
-                self._board.place(row, col, player.turn)
-                if (winner := self._board.check_win()) is not None:
-                    return winner
+                if player.has_valid_move(self._board):
+                    players_stuck = False
+                    row, col = player.get_move(self._board)
+                    self._board.place(row, col, player.turn)
+                else:
+                    print(f"{player.color} has no moves, skipping.")
+            if players_stuck:
+                return self._board.get_winner()
 
 
 if __name__ == "__main__":

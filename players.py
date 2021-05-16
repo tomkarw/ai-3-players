@@ -1,27 +1,29 @@
-from board import Board, ForbiddenMove
+from board import Board
 from strategies import Strategy
 
-
 PLAYER_MAPPINGS = {
-    0: "white",
-    1: "black",
-    2: "red",
+    0: "Black",
+    1: "White",
+    2: "Red",
 }
 
 
 class Player:
+    def __init__(self, turn):
+        self.turn = turn
+        self.color = PLAYER_MAPPINGS[turn]
+
     def print_board(self, board_: Board) -> None:
         raise NotImplemented
 
     def get_move(self, board_: Board) -> (int, int):
         raise NotImplemented
 
+    def has_valid_move(self, board_: Board) -> bool:
+        return board_.has_valid_move(self.turn)
 
-class HumanPlayer:
 
-    def __init__(self, turn):
-        self.turn = turn
-        self.color = PLAYER_MAPPINGS[turn]
+class HumanPlayer(Player):
 
     def print_board(self, board_: Board) -> None:
         print(board_)
@@ -36,22 +38,17 @@ class HumanPlayer:
             except ValueError:
                 move = input("Invalid input string. Try again: ")
                 continue
-            try:
-                board_.validate_placing(row, col, self.turn)
-            except ForbiddenMove as reason:
-                move = input(f"{reason}. Try again: ")
+            valid, reason = board_.validate_placing(row, col, self.turn)
+            if not valid:
+                move = input(f"{reason} Try again: ")
             else:
                 return row, col
 
 
-class AIPlayer:
-    color: str
-    turn: int
-    strategy: Strategy
+class AIPlayer(Player):
 
-    def __init__(self, turn, strategy) -> None:
-        self.turn = turn
-        self.color = PLAYER_MAPPINGS[turn]
+    def __init__(self, turn, strategy: Strategy) -> None:
+        super().__init__(turn)
         self.strategy = strategy
 
     def print_board(self, board_: Board) -> None:
