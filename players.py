@@ -1,5 +1,8 @@
+from copy import deepcopy
+
 from board import Board
-from strategies import Strategy
+from minimax import minimax
+from strategies import Heuristic
 
 PLAYER_MAPPINGS = {
     0: "Black",
@@ -13,29 +16,29 @@ class Player:
         self.turn = turn
         self.color = PLAYER_MAPPINGS[turn]
 
-    def print_board(self, board_: Board) -> None:
+    def print_board(self, board: Board) -> None:
         raise NotImplementedError
 
     def print_no_moves(self) -> None:
         raise NotImplementedError
 
-    def get_move(self, board_: Board) -> (int, int):
+    def get_move(self, game) -> (int, int):
         raise NotImplementedError
 
-    def has_valid_move(self, board_: Board) -> bool:
-        return board_.has_valid_move(self.turn)
+    def has_valid_move(self, board: Board) -> bool:
+        return board.has_valid_move(self.turn)
 
 
 class HumanPlayer(Player):
 
-    def print_board(self, board_: Board) -> None:
-        print(board_)
+    def print_board(self, board: Board) -> None:
+        print(board)
         print(f"{self.color}'s turn.")
 
     def print_no_moves(self) -> None:
         print(f"{self.color} has no moves, skipping.")
 
-    def get_move(self, board_: Board) -> (int, int):
+    def get_move(self, game) -> (int, int):
         move = input("Provide coords as '<int>, <int>': ")
         # loop till valid move
         while True:
@@ -44,7 +47,7 @@ class HumanPlayer(Player):
             except ValueError:
                 move = input("Invalid input string. Try again: ")
                 continue
-            valid, reason = board_.validate_placing(row, col, self.turn)
+            valid, reason = game.board.validate_placing(row, col, self.turn)
             if not valid:
                 move = input(f"{reason} Try again: ")
             else:
@@ -53,15 +56,29 @@ class HumanPlayer(Player):
 
 class AIPlayer(Player):
 
-    def __init__(self, turn, strategy: Strategy) -> None:
+    def __init__(self, turn, heuristic: Heuristic) -> None:
         super().__init__(turn)
-        self.strategy = strategy
+        self.heuristic = heuristic
 
-    def print_board(self, board_: Board) -> None:
+    def print_board(self, board: Board) -> None:
         pass  # Robots don't need visuals
 
     def print_no_moves(self) -> None:
         pass  # Robots don't need visuals
 
-    def get_move(self, board_: Board) -> (int, int):
-        return self.strategy.get_move(board_)
+    def get_move(self, game) -> (int, int):
+        best_eval = None
+        best_move = None
+        valid_moves = game.board.valid_moves(self.turn)
+        next_player = (self.turn + 1) % len(game.players)
+
+        for move_row, move_col in valid_moves:
+            new_board = deepcopy(game.board)
+            new_board.place(move_row, move_col, self.turn)
+            evaluation = minimax(deepcopy(game.board), game.minimax_depth - 1, self.turn, next_player, len(game.players), 0, self.heuristic.evaluate)
+            best_eval = evaluation if best_eval is None else max(best_eval, evaluation)
+            if best_eval == evaluation:
+                best_move = (move_row, move_col)
+
+        print(f"{self.color} robot goes: {best_move}")
+        return best_move

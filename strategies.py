@@ -1,22 +1,21 @@
 from board import Board
 
 
-class Strategy:
-    def get_move(self, board_: Board) -> (int, int):
+class Heuristic:
+    def evaluate(self, board: Board, player: int) -> int:
         raise NotImplementedError
 
 
-class GreedyStrategy(Strategy):
-    def get_move(self, board_: Board) -> (int, int):
+class GreedyHeuristic(Heuristic):
+    def evaluate(self, board: Board, player: int) -> int:
         """
         Move decision with greedy strategy based on board state.
         """
-        # TODO(tkarwowski)
-        raise NotImplementedError
+        return sum([sum(map(lambda cell: cell == player, row)) for row in board.board])
 
 
-class WeightedSumStrategy(Strategy):
-    def get_move(self, board_: Board) -> (int, int):
+class WeightedSumHeuristic(Heuristic):
+    def evaluate(self, board: Board, player: int) -> int:
         """
         Move decision with weighted sum strategy based on board state.
         """
@@ -24,8 +23,8 @@ class WeightedSumStrategy(Strategy):
         raise NotImplementedError
 
 
-class WedgeStrategy(Strategy):
-    def get_move(self, board_: Board) -> (int, int):
+class WedgeHeuristic(Heuristic):
+    def evaluate(self, board: Board, player: int) -> int:
         """
         Move decision with wedge strategy based on board state.
         """
