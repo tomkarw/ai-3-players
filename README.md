@@ -12,7 +12,14 @@ For now only human games are available.
 Simply run:
 ```
 pip install colorama # we use it for fancy terminal coloring
-python main.py
+python main.py <player1> <player2> <player3> <minimax-depth>
 ```
+where `player#: human | greedy_ai` and `minimax-depth: <int>`
+is the max depth reached in minimax algorithm (3-4 tops for now).
 
 Enjoy!
+
+- TODO: alpha-beta pruning
+- TODO: weighted sum heuristic
+- TODO: wedge heuristic
+- TODO: time optimizations
