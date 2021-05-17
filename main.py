@@ -1,3 +1,5 @@
+import sys
+
 from board import Board
 from players import HumanPlayer, AIPlayer
 from strategies import GreedyHeuristic, WeightedSumHeuristic, WedgeHeuristic
@@ -5,7 +7,7 @@ from strategies import GreedyHeuristic, WeightedSumHeuristic, WedgeHeuristic
 
 class Game:
 
-    def __init__(self, players_type: list, minimax_depth):
+    def __init__(self, players_type: list, minimax_depth: int):
         self.minimax_depth = minimax_depth
         self.players = []
         for turn, player in enumerate(players_type):
@@ -39,7 +41,10 @@ class Game:
 
 
 if __name__ == "__main__":
-    game = Game(players_type=["greedy_ai", "greedy_ai", "greedy_ai"], minimax_depth=3)
-    winner_ = game.start()
-    print(game.board)
-    print(f"Congratulations {game.players[winner_].color}, you win!")
+    if len(sys.argv) != 5:
+        print("usage: main.py <player1> <player2> <player3> <minimax-depth>")
+    else:
+        game = Game(players_type=[sys.argv[1], sys.argv[2], sys.argv[3]], minimax_depth=int(sys.argv[4]))
+        winner_ = game.start()
+        print(game.board)
+        print(f"Congratulations {game.players[winner_].color}, you win!")

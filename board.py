@@ -61,9 +61,9 @@ class Board:
         """
         Create starting position for 3 player game
         """
-        self.board[3][3] = self.board[3][5] = self.board[4][4] = 0  # white
-        self.board[3][4] = self.board[5][3] = self.board[5][5] = 1  # black
-        self.board[4][3] = self.board[4][5] = self.board[5][4] = 2  # red
+        self.board[3][3] = self.board[3][5] = self.board[4][4] = 0
+        self.board[3][4] = self.board[5][3] = self.board[5][5] = 1
+        self.board[4][3] = self.board[4][5] = self.board[5][4] = 2
 
     def place(self, row: int, column: int, player: int):
         self.validate_placing(row, column, player)
