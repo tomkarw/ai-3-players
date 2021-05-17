@@ -30,7 +30,6 @@ class Player:
 
 
 class HumanPlayer(Player):
-
     def print_board(self, board: Board) -> None:
         print(board)
         print(f"{self.color}'s turn.")
@@ -55,7 +54,6 @@ class HumanPlayer(Player):
 
 
 class AIPlayer(Player):
-
     def __init__(self, turn, heuristic: Heuristic) -> None:
         super().__init__(turn)
         self.heuristic = heuristic
@@ -75,7 +73,15 @@ class AIPlayer(Player):
         for move_row, move_col in valid_moves:
             new_board = deepcopy(game.board)
             new_board.place(move_row, move_col, self.turn)
-            evaluation = minimax(deepcopy(game.board), game.minimax_depth - 1, self.turn, next_player, len(game.players), 0, self.heuristic.evaluate)
+            evaluation = minimax(
+                deepcopy(game.board),
+                game.minimax_depth - 1,
+                self.turn,
+                next_player,
+                len(game.players),
+                0,
+                self.heuristic.evaluate,
+            )
             best_eval = evaluation if best_eval is None else max(best_eval, evaluation)
             if best_eval == evaluation:
                 best_move = (move_row, move_col)

@@ -6,7 +6,6 @@ from strategies import GreedyHeuristic, WeightedSumHeuristic, WedgeHeuristic
 
 
 class Game:
-
     def __init__(self, players_type: list, minimax_depth: int):
         self.minimax_depth = minimax_depth
         self.players = []
@@ -44,7 +43,10 @@ if __name__ == "__main__":
     if len(sys.argv) != 5:
         print("usage: main.py <player1> <player2> <player3> <minimax-depth>")
     else:
-        game = Game(players_type=[sys.argv[1], sys.argv[2], sys.argv[3]], minimax_depth=int(sys.argv[4]))
+        game = Game(
+            players_type=[sys.argv[1], sys.argv[2], sys.argv[3]],
+            minimax_depth=int(sys.argv[4]),
+        )
         winner_ = game.start()
         print(game.board)
         print(f"Congratulations {game.players[winner_].color}, you win!")

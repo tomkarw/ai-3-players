@@ -23,6 +23,7 @@ class Board:
     """
     Stateful board of Othello game
     """
+
     board: list[list[int]]
     rows: int = 9
     columns: int = 9
@@ -32,7 +33,13 @@ class Board:
         self.board = [[EMPTY for _ in range(self.columns)] for _ in range(self.rows)]
 
     def topbot_line(self) -> str:
-        return "  " + Back.GREEN + " ".join(["+"] + (["-  "] * self.columns)[:-1] + [f"- +{Style.RESET_ALL}\n"])
+        return (
+            "  "
+            + Back.GREEN
+            + " ".join(
+                ["+"] + (["-  "] * self.columns)[:-1] + [f"- +{Style.RESET_ALL}\n"]
+            )
+        )
 
     def __str__(self):
         output = ""
@@ -47,7 +54,13 @@ class Board:
                 output += self.print_disc(cell) + "|"
             output += f"{Style.RESET_ALL}\n"
             if row_num != self.rows - 1:
-                output += "  " + Back.GREEN + " ".join([" "] + ["-  "] * self.columns) + Style.RESET_ALL + "\n"
+                output += (
+                    "  "
+                    + Back.GREEN
+                    + " ".join([" "] + ["-  "] * self.columns)
+                    + Style.RESET_ALL
+                    + "\n"
+                )
         # bottom line
         output += self.topbot_line()
         return output
@@ -75,9 +88,9 @@ class Board:
     def validate_placing(self, row: int, column: int, player: int) -> (bool, str):
         """
         Make sure move is valid.
-        If not raise ForbiddenMove exception with human readable reason why the move is not allowed.
+        If not raise ForbiddenMove exception with human readable reason
+        why the move is not allowed.
         """
-        # TODO(tkarwowski)
         # outside bounds
         if row < 0 or row >= self.rows or column < 0 or column >= self.columns:
             return False, "Placement out of bounds."
@@ -120,7 +133,12 @@ class Board:
             new_row = row + dy
             new_col = column + dx
             # stop when we reach board border
-            while not (new_row < 0 or new_row >= self.rows or new_col < 0 or new_col >= self.columns):
+            while not (
+                new_row < 0
+                or new_row >= self.rows
+                or new_col < 0
+                or new_col >= self.columns
+            ):
                 if self.board[new_row][new_col] == player:
                     # we found outflanking disc, append visited disc to flip list
                     flips += visited_discs
