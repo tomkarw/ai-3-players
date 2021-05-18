@@ -81,6 +81,8 @@ class AIPlayer(Player):
                 len(game.players),
                 0,
                 self.heuristic.evaluate,
+                None,
+                None,
             )
             best_eval = evaluation if best_eval is None else max(best_eval, evaluation)
             if best_eval == evaluation:
