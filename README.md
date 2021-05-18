@@ -19,7 +19,5 @@ is the max depth reached in minimax algorithm (3-4 tops for now).
 
 Enjoy!
 
-- TODO: alpha-beta pruning
-- TODO: weighted sum heuristic
 - TODO: wedge heuristic
 - TODO: time optimizations

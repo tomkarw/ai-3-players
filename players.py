@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from board import Board
 from minimax import minimax
-from strategies import Heuristic
+from heuristics import Heuristic
 
 PLAYER_MAPPINGS = {
     0: "Black",
@@ -71,6 +71,7 @@ class AIPlayer(Player):
         next_player = (self.turn + 1) % len(game.players)
 
         for move_row, move_col in valid_moves:
+            # TODO(tkarwowski): making this backtrace instead of coping breaks everything
             new_board = deepcopy(game.board)
             new_board.place(move_row, move_col, self.turn)
             evaluation = minimax(
@@ -84,10 +85,10 @@ class AIPlayer(Player):
                 None,
                 None,
             )
-            # game.board.board[move_row][move_col] = -1
             best_eval = evaluation if best_eval is None else max(best_eval, evaluation)
             if best_eval == evaluation:
                 best_move = (move_row, move_col)
 
-        print(f"{self.color} robot goes: {best_move}")
+        # TODO(tkarwowski): temporary debug statement (but looks cool)
+        print(game.board)
         return best_move

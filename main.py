@@ -2,7 +2,7 @@ import sys
 
 from board import Board
 from players import HumanPlayer, AIPlayer
-from strategies import GreedyHeuristic, WeightedSumHeuristic, WedgeHeuristic
+from heuristics import GreedyHeuristic, WeightedSumHeuristic, WedgeHeuristic
 
 
 class Game:
