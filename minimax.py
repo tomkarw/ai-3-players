@@ -18,7 +18,7 @@ def minimax(
     if depth == 0 or turns_passed == num_players:
         return heuristic(board, current_player)
 
-    max_eval = None
+    best_eval = None
     valid_moves = board.valid_moves(current_player)
     next_player = (current_player + 1) % num_players
 
@@ -32,7 +32,7 @@ def minimax(
         evaluation = minimax(board, depth - 1, maximizing_player, next_player, num_players, 0, heuristic, alpha, beta)
         board.board[move_row][move_col] = EMPTY
         f = max if current_player == maximizing_player else min
-        max_eval = evaluation if max_eval is None else f(max_eval, evaluation)
+        best_eval = evaluation if best_eval is None else f(best_eval, evaluation)
 
         # alpha-beta pruning
         if current_player == maximizing_player:
@@ -44,4 +44,4 @@ def minimax(
             if alpha is not None and beta <= alpha:
                 break
 
-    return max_eval
+    return best_eval

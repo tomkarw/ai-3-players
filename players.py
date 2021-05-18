@@ -74,7 +74,7 @@ class AIPlayer(Player):
             new_board = deepcopy(game.board)
             new_board.place(move_row, move_col, self.turn)
             evaluation = minimax(
-                deepcopy(game.board),
+                new_board,
                 game.minimax_depth - 1,
                 self.turn,
                 next_player,
@@ -84,6 +84,7 @@ class AIPlayer(Player):
                 None,
                 None,
             )
+            # game.board.board[move_row][move_col] = -1
             best_eval = evaluation if best_eval is None else max(best_eval, evaluation)
             if best_eval == evaluation:
                 best_move = (move_row, move_col)
