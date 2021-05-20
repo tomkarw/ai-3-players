@@ -1,4 +1,5 @@
 import itertools
+import platform
 from dataclasses import dataclass
 from typing import Union
 
@@ -6,11 +7,26 @@ from colorama import Back, Style
 
 EMPTY = -1
 
+if platform.system() == "Linux":
+    BACK_EMPTY = ""
+    BACK_GREEN = Back.GREEN
+    BACK_BLACK = Back.BLACK
+    BACK_WHITE = Back.WHITE
+    BACK_RED = Back.RED
+    RESET_COLOR = Style.RESET_ALL
+else:
+    BACK_EMPTY = " "
+    BACK_GREEN = ""
+    BACK_BLACK = "0"
+    BACK_WHITE = "1"
+    BACK_RED = "2"
+    RESET_COLOR = ""
+
 COLOR_MAPPING = {
-    -1: "",
-    0: Back.BLACK,
-    1: Back.WHITE,
-    2: Back.RED,
+    -1: BACK_EMPTY,
+    0: BACK_BLACK,
+    1: BACK_WHITE,
+    2: BACK_RED,
 }
 
 
@@ -32,12 +48,12 @@ class Board:
         super().__init__()
         self.board = [[EMPTY for _ in range(self.columns)] for _ in range(self.rows)]
 
-    def topbot_line(self) -> str:
+    def top_bot_line(self) -> str:
         return (
             "  "
-            + Back.GREEN
+            + BACK_GREEN
             + " ".join(
-                ["+"] + (["-  "] * self.columns)[:-1] + [f"- +{Style.RESET_ALL}\n"]
+                ["+"] + (["-  "] * self.columns)[:-1] + [f"- +{RESET_COLOR}\n"]
             )
         )
 
@@ -46,29 +62,29 @@ class Board:
         # column numbering
         output += "    " + "   ".join(map(str, range(self.columns))) + "\n"
         # top line
-        output += self.topbot_line()
+        output += self.top_bot_line()
         # iterate over all but last row
         for row_num, row in enumerate(self.board):
-            output += f"{row_num} {Back.GREEN}|"
+            output += f"{row_num} {BACK_GREEN}|"
             for cell in row:
                 output += self.print_disc(cell) + "|"
-            output += f"{Style.RESET_ALL}\n"
+            output += f"{RESET_COLOR}\n"
             if row_num != self.rows - 1:
                 output += (
                     "  "
-                    + Back.GREEN
+                    + BACK_GREEN
                     + " ".join([" "] + ["-  "] * self.columns)
-                    + Style.RESET_ALL
+                    + RESET_COLOR
                     + "\n"
                 )
         # bottom line
-        output += self.topbot_line()
+        output += self.top_bot_line()
         return output
 
     @staticmethod
     def print_disc(cell):
         color = COLOR_MAPPING[cell]
-        return f"{color or ''}   {Back.GREEN}"
+        return f"{color or ''}   {BACK_GREEN}"
 
     def setup_three_players(self):
         """
@@ -88,8 +104,7 @@ class Board:
     def validate_placing(self, row: int, column: int, player: int) -> (bool, str):
         """
         Make sure move is valid.
-        If not raise ForbiddenMove exception with human readable reason
-        why the move is not allowed.
+        Return (True, "") otherwise (False, "reason for failure")
         """
         # outside bounds
         if row < 0 or row >= self.rows or column < 0 or column >= self.columns:
