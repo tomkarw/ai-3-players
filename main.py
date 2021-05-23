@@ -43,10 +43,27 @@ if __name__ == "__main__":
     if len(sys.argv) != 5:
         print("usage: main.py <player1> <player2> <player3> <minimax-depth>")
     else:
-        game = Game(
-            players_type=[sys.argv[1], sys.argv[2], sys.argv[3]],
-            minimax_depth=int(sys.argv[4]),
-        )
-        winner_ = game.start()
-        print(game.board)
-        print(f"Congratulations {game.players[winner_].color}, you win!")
+        if sys.argv[1] == "auto":
+            players_types = ["greedy_ai", "weighted_sum_ai", "wedge_ai"]
+            result = "P1 P2 P3 Winner \n"
+            auto_winner = -1
+            for x in range(5): #depth 1-6
+                for player1 in players_types:
+                    for player2 in players_types:
+                        for player3 in players_types:
+                            game = Game(
+                                players_type=[player1, player2, player3],
+                                minimax_depth=x+1,
+                            )
+                            auto_winner = game.start()
+                            my_depth = (x+1).__str__()
+                            result += my_depth + " " +player1 + " " + player2 + " " + player3 + " " + auto_winner.__str__() + "\n"
+            print(result)
+        else:
+            game = Game(
+                players_type=[sys.argv[1], sys.argv[2], sys.argv[3]],
+                minimax_depth=int(sys.argv[4]),
+            )
+            winner_ = game.start()
+            print(game.board)
+            print(f"Congratulations {game.players[winner_].color}, you win!")

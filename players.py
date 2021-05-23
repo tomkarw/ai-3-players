@@ -90,5 +90,5 @@ class AIPlayer(Player):
                 best_move = (move_row, move_col)
 
         # TODO(tkarwowski): temporary debug statement (but looks cool)
-        print(game.board)
+        # print(game.board)
         return best_move
