@@ -3,11 +3,11 @@ import platform
 from dataclasses import dataclass
 from typing import Union
 
-from colorama import Back, Style
 
 EMPTY = -1
 
 if platform.system() == "Linux":
+    from colorama import Back, Style
     BACK_EMPTY = ""
     BACK_GREEN = Back.GREEN
     BACK_BLACK = Back.BLACK
