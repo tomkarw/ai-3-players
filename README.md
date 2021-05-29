@@ -7,17 +7,19 @@ Computer players implement one of three stategies:
 3. Wedge algorithm
 
 # Setting up the game
-For now only human games are available.
-
-Simply run:
+On linux disto simply run:
 ```
 pip install colorama # we use it for fancy terminal coloring
 python main.py <player1> <player2> <player3> <minimax-depth>
 ```
-where `player#: human | greedy_ai` and `minimax-depth: <int>`
-is the max depth reached in minimax algorithm (3-4 tops for now).
+where `player#: human | greedy_ai | wedge_ai` and `minimax-depth: <int>`
+is the max depth reached in minimax algorithm (5-8 tops for now).
+
+If you are on windows, colors are not supported and you don't need to install colorama.
+
+Example:
+```
+python main.py human weighted_sum_ai greedy_ai 4
+```
 
 Enjoy!
-
-- TODO: wedge heuristic
-- TODO: time optimizations
