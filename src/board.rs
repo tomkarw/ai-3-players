@@ -94,6 +94,7 @@ impl BoardState {
         let row = row as i32;
         let column = column as i32;
         let mut flips = Vec::new();
+        // iterate over possible directions
         for (dy, dx) in iproduct!(0..3, 0..3) {
             let dy: i32 = dy - 1;
             let dx: i32 = dx - 1;
@@ -127,7 +128,15 @@ impl BoardState {
         flips
     }
 
-    // fn validate_placing(&self, row: usize, column: usize, player: u8) {
-    //     // TODO
-    // }
+    fn validate_placing(&self, row: usize, column: usize, player: u8) {
+        todo!()
+    }
+
+    pub(crate) fn has_valid_move(&self, turn: usize) -> bool {
+        todo!()
+    }
+
+    pub(crate) fn get_winner(&self) -> u8 {
+        todo!()
+    }
 }
