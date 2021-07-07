@@ -1,19 +1,25 @@
-use itertools::iproduct;
 use std::fmt::{Display, Formatter, Result};
+
+use itertools::{iproduct, max};
 use termion::color;
 
-const EMPTY_TILE: u8 = 0;
+const EMPTY_TILE: usize = 0;
 const BG_GREEN: color::Bg<color::Green> = color::Bg(color::Green);
 const BG_BLACK: color::Bg<color::Black> = color::Bg(color::Black);
 const BG_WHITE: color::Bg<color::White> = color::Bg(color::White);
 const BG_RED: color::Bg<color::Red> = color::Bg(color::Red);
 const RST_CLR: color::Bg<color::Reset> = color::Bg(color::Reset);
 
+pub(crate) enum Move {
+    Valid { row: usize, column: usize },
+    Invalid(&'static str),
+}
+
 /// Represents game board and it's state
 pub(crate) struct BoardState {
     rows: usize,
     columns: usize,
-    board: Vec<u8>,
+    board: Vec<usize>,
 }
 
 impl Display for BoardState {
@@ -83,14 +89,14 @@ impl BoardState {
         self.board[5 * self.columns + 4] = 3;
     }
 
-    pub(crate) fn place(&mut self, row: usize, column: usize, player: u8) {
+    pub(crate) fn place(&mut self, row: usize, column: usize, player: usize) {
         for (row, column) in self.would_flip(row, column, player) {
             self.board[row * self.columns + column] = player;
         }
         self.board[row * self.columns + column] = player;
     }
 
-    fn would_flip(&self, row: usize, column: usize, player: u8) -> Vec<(usize, usize)> {
+    fn would_flip(&self, row: usize, column: usize, player: usize) -> Vec<(usize, usize)> {
         let row = row as i32;
         let column = column as i32;
         let mut flips = Vec::new();
@@ -128,15 +134,89 @@ impl BoardState {
         flips
     }
 
-    fn validate_placing(&self, row: usize, column: usize, player: u8) {
-        todo!()
+    /// Makes sure move is valid
+    fn validate_placing(&self, row: usize, column: usize, player: usize) -> Move {
+        // outside bounds
+        if row < 0 || row >= self.rows || column < 0 || column >= self.columns {
+            return Move::Invalid("Placement out of bounds.");
+        }
+        // square is taken
+        if self.board[row * self.columns + column] != EMPTY_TILE {
+            return Move::Invalid("Square taken.");
+        }
+        // square not adjacent to any current discs
+        let mut is_adjacent = false;
+        for r in row as i32 - 1..row as i32 + 2 {
+            for c in column as i32 - 1..column as i32 + 2 {
+                if r < 0 || r >= self.rows as i32 || c < 0 || c >= self.columns as i32 {
+                    continue;
+                }
+                if r == row as i32 && c == column as i32 {
+                    continue;
+                }
+                if self.board[r as usize * self.columns + c as usize] != EMPTY_TILE {
+                    is_adjacent = true;
+                    break;
+                }
+            }
+            if is_adjacent {
+                break;
+            }
+        }
+        if !is_adjacent {
+            return Move::Invalid("New disc must be adjacent to some existing one.");
+        }
+
+        if self.would_flip(row, column, player).is_empty() {
+            return Move::Invalid("Move must flip at least one disk.");
+        }
+
+        Move::Valid { row, column }
     }
 
-    pub(crate) fn has_valid_move(&self, turn: usize) -> bool {
-        todo!()
+    pub(crate) fn has_valid_move(&self, player: usize) -> bool {
+        for row in 0..self.rows {
+            for column in 0..self.columns {
+                if let Move::Valid { .. } = self.validate_placing(row, column, player) {
+                    return true;
+                }
+            }
+        }
+        false
     }
 
-    pub(crate) fn get_winner(&self) -> u8 {
-        todo!()
+    pub(crate) fn valid_moves(&self, player: usize) -> Vec<(usize, usize)> {
+        let mut moves = Vec::new();
+        for row in 0..self.rows {
+            for column in 0..self.columns {
+                if let Move::Valid { .. } = self.validate_placing(row, column, player) {
+                    moves.push((row, column));
+                }
+            }
+        }
+        moves
+    }
+
+    /// Check if game ended and if so return winning player.
+    /// If at least two players score the same, we call a draw.
+    pub(crate) fn get_winner(&self) -> usize {
+        let mut scores = vec![0, 0, 0];
+        for &cell in self.board.iter() {
+            scores[cell as usize] += 1;
+        }
+
+        let max_score = max(scores.iter()).unwrap();
+
+        if scores.iter().filter(|&x| x == max_score).count() > 1 {
+            return 0;
+        }
+
+        for (i, score) in scores.iter().enumerate() {
+            if score == max_score {
+                return i + 1;
+            }
+        }
+
+        unreachable!();
     }
 }
