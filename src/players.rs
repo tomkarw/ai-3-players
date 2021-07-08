@@ -14,13 +14,17 @@ impl Player for Human {
     fn get_move(&self, board: &BoardState, player: usize) -> (usize, usize) {
         let mut input = String::with_capacity(4);
         print!("Provide coords as '<int>, <int>': ");
-        // loop till valid move
+        // loop till valid move is provided
         loop {
             io::stdout().flush().unwrap();
             input.clear();
             io::stdin().read_line(&mut input).unwrap();
             let (row, col) = if let Some((row, col)) = input.split_once(",") {
-                match (row.trim().parse(), col.trim_end_matches("\n").trim().parse()) {
+                match (
+                    row.trim().parse(),
+                    col.trim_end_matches('\n').trim().parse(),
+                ) {
+                    // we're only interested if everything is parsed correctly
                     (Ok(row), Ok(col)) => (row, col),
                     (_, _) => {
                         print!("Can't parse input. Try again: ");
@@ -32,12 +36,12 @@ impl Player for Human {
                 continue;
             };
             match board.validate_placing(row, col, player) {
-                Move::Valid {..} => return (row, col),
+                Move::Valid { .. } => return (row, col),
                 Move::Invalid(reason) => {
                     print!("{} Try again: ", reason);
-                },
+                }
             }
-        };
+        }
     }
 
     fn print_board(&self, board: &BoardState) {
@@ -46,6 +50,6 @@ impl Player for Human {
     }
 
     fn print_no_moves(&self) {
-        // println!("");
+        println!("No available moves. Skipping turn.");
     }
 }
