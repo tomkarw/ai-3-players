@@ -19,6 +19,7 @@ impl Game {
         loop {
             let mut players_stuck = true;
             for (turn, player) in self.players.iter().enumerate() {
+                let turn = turn + 1;
                 player.print_board(&self.board_state);
                 if self.board_state.has_valid_move(turn as usize) {
                     players_stuck = false;

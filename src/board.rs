@@ -11,7 +11,7 @@ const BG_RED: color::Bg<color::Red> = color::Bg(color::Red);
 const RST_CLR: color::Bg<color::Reset> = color::Bg(color::Reset);
 
 pub(crate) enum Move {
-    Valid { row: usize, column: usize },
+    Valid,
     Invalid(&'static str),
 }
 
@@ -135,9 +135,9 @@ impl BoardState {
     }
 
     /// Makes sure move is valid
-    fn validate_placing(&self, row: usize, column: usize, player: usize) -> Move {
+    pub(crate) fn validate_placing(&self, row: usize, column: usize, player: usize) -> Move {
         // outside bounds
-        if row < 0 || row >= self.rows || column < 0 || column >= self.columns {
+        if row >= self.rows || column >= self.columns {
             return Move::Invalid("Placement out of bounds.");
         }
         // square is taken
@@ -171,13 +171,13 @@ impl BoardState {
             return Move::Invalid("Move must flip at least one disk.");
         }
 
-        Move::Valid { row, column }
+        Move::Valid
     }
 
     pub(crate) fn has_valid_move(&self, player: usize) -> bool {
         for row in 0..self.rows {
             for column in 0..self.columns {
-                if let Move::Valid { .. } = self.validate_placing(row, column, player) {
+                if let Move::Valid = self.validate_placing(row, column, player) {
                     return true;
                 }
             }
@@ -189,7 +189,7 @@ impl BoardState {
         let mut moves = Vec::new();
         for row in 0..self.rows {
             for column in 0..self.columns {
-                if let Move::Valid { .. } = self.validate_placing(row, column, player) {
+                if let Move::Valid = self.validate_placing(row, column, player) {
                     moves.push((row, column));
                 }
             }
