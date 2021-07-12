@@ -92,3 +92,21 @@ pub(crate) fn minimax<F>
 pub(crate) fn greedy_heuristic(board: &BoardState, player: usize) -> i32 {
     board.board.iter().filter(|&&x| x == player).count() as i32
 }
+
+const WEIGHTED_SUM_TABLE: [i32; 81] = [
+    60, -30, 25, 25, 25, 25, 25, -30, 60,
+    -30, -40, -25, -25, -25, -25, -25, -40, -30,
+    25, -25, 1, 1, 1, 1, 1, -25, 25,
+    25, -25, 1, 1, 1, 1, 1, -25, 25,
+    25, -25, 1, 1, 1, 1, 1, -25, 25,
+    25, -25, 1, 1, 1, 1, 1, -25, 25,
+    25, -25, 1, 1, 1, 1, 1, -25, 25,
+    -30, -40, -25, -25, -25, -25, -25, -40, -30,
+    60, -30, 25, 25, 25, 25, 25, -30, 60,
+];
+
+pub(crate) fn weighted_sum_heuristic(board: &BoardState, player: usize) -> i32 {
+    board.board.iter().enumerate().filter(|&(_, &p)| p == player).fold(0, |sum, (i, _)| {
+        sum + WEIGHTED_SUM_TABLE[i]
+    })
+}
