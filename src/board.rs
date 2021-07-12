@@ -41,7 +41,7 @@ impl Display for BoardState {
         for i in 0..self.rows {
             write!(f, "{} {}|", i, BG_GREEN)?;
             for j in 0..self.columns {
-                match self.board[i * self.columns + j] {
+                match self.get(i, j){
                     1 => write!(f, "{}", BG_BLACK)?,
                     2 => write!(f, "{}", BG_WHITE)?,
                     3 => write!(f, "{}", BG_RED)?,
@@ -77,25 +77,27 @@ impl BoardState {
         }
     }
 
-    /// Create starting position for 3 player game
-    pub(crate) fn setup_three_players(&mut self) {
-        self.board[3 * self.columns + 3] = 1;
-        self.board[3 * self.columns + 5] = 1;
-        self.board[4 * self.columns + 4] = 1;
-        self.board[3 * self.columns + 4] = 2;
-        self.board[5 * self.columns + 3] = 2;
-        self.board[5 * self.columns + 5] = 2;
-        self.board[4 * self.columns + 3] = 3;
-        self.board[4 * self.columns + 5] = 3;
-        self.board[5 * self.columns + 4] = 3;
-    }
-
+    /// Get single cell value
     pub(crate) fn get(&self, row: usize, column: usize) -> usize {
         self.board[row * self.columns + column]
     }
 
+    /// Set single cell value
     pub(crate) fn set(&mut self, row: usize, column: usize, player: usize) {
         self.board[row * self.columns + column] = player;
+    }
+
+    /// Create starting position for 3 player game
+    pub(crate) fn setup_three_players(&mut self) {
+        self.set(3, 3, 1);
+        self.set(3, 5, 1);
+        self.set(4, 4, 1);
+        self.set(3, 4, 2);
+        self.set(5, 3, 2);
+        self.set(5, 5, 2);
+        self.set(4, 3, 3);
+        self.set(4, 5, 3);
+        self.set(5, 4, 3);
     }
 
     pub(crate) fn place(
@@ -108,10 +110,10 @@ impl BoardState {
         let mut flipped = Vec::with_capacity(would_flip.len());
         for (r, c) in would_flip {
             flipped.push(((r, c), self.board[r * self.columns + c]));
-            self.board[r * self.columns + c] = player;
+            self.set(r, c, player);
         }
         flipped.push(((row, column), self.board[row * self.columns + column]));
-        self.board[row * self.columns + column] = player;
+        self.set(row, column, player);
 
         flipped
     }
@@ -161,7 +163,7 @@ impl BoardState {
             return Move::Invalid("Placement out of bounds.");
         }
         // square is taken
-        if self.board[row * self.columns + column] != EMPTY_TILE {
+        if self.get(row, column)!= EMPTY_TILE {
             return Move::Invalid("Square taken.");
         }
         // square not adjacent to any current discs
