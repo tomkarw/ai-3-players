@@ -1,5 +1,6 @@
 use crate::board::BoardState;
-use crate::players::{Human, Player};
+use crate::heuristics::greedy_heuristic;
+use crate::players::{AiPlayer, Human, Player};
 
 pub(crate) struct Game {
     board_state: BoardState,
@@ -11,17 +12,18 @@ impl Game {
         if player_types.len() != 3 {
             return Err("Wrong number of arguments".to_owned());
         }
-        let mut players = Vec::with_capacity(3);
+        let mut players: Vec<Box<dyn Player>> = Vec::with_capacity(3);
         for player in player_types.iter() {
             let player_str = player.as_str();
             match player_str {
-                "human" => players.push(Human {}),
+                "human" => players.push(Box::new(Human::new())),
+                "greedy_ai" => players.push(Box::new(AiPlayer::new(minimax_depth, greedy_heuristic))),
                 x => return Err(format!("'{}' is not valid player type", x)),
             }
         }
         Ok(Game {
             board_state: BoardState::new(9, 9),
-            players: vec![Box::new(Human {}), Box::new(Human {}), Box::new(Human {})],
+            players,
         })
     }
 

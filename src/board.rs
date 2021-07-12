@@ -16,10 +16,11 @@ pub(crate) enum Move {
 }
 
 /// Represents game board and it's state
+#[derive(Debug, Clone)]
 pub(crate) struct BoardState {
+    pub board: Vec<usize>,
     rows: usize,
     columns: usize,
-    board: Vec<usize>,
 }
 
 impl Display for BoardState {
@@ -89,11 +90,30 @@ impl BoardState {
         self.board[5 * self.columns + 4] = 3;
     }
 
-    pub(crate) fn place(&mut self, row: usize, column: usize, player: usize) {
-        for (row, column) in self.would_flip(row, column, player) {
-            self.board[row * self.columns + column] = player;
-        }
+    pub(crate) fn get(&self, row: usize, column: usize) -> usize {
+        self.board[row * self.columns + column]
+    }
+
+    pub(crate) fn set(&mut self, row: usize, column: usize, player: usize) {
         self.board[row * self.columns + column] = player;
+    }
+
+    pub(crate) fn place(
+        &mut self,
+        row: usize,
+        column: usize,
+        player: usize,
+    ) -> Vec<((usize, usize), usize)> {
+        let would_flip = self.would_flip(row, column, player);
+        let mut flipped = Vec::with_capacity(would_flip.len());
+        for (r, c) in would_flip {
+            flipped.push(((r, c), self.board[r * self.columns + c]));
+            self.board[r * self.columns + c] = player;
+        }
+        flipped.push(((row, column), self.board[row * self.columns + column]));
+        self.board[row * self.columns + column] = player;
+
+        flipped
     }
 
     fn would_flip(&self, row: usize, column: usize, player: usize) -> Vec<(usize, usize)> {
@@ -202,7 +222,7 @@ impl BoardState {
     pub(crate) fn get_winner(&self) -> usize {
         let mut scores = vec![0, 0, 0];
         for &cell in self.board.iter() {
-            scores[cell as usize] += 1;
+            scores[cell as usize - 1] += 1;
         }
 
         let max_score = max(scores.iter()).unwrap();

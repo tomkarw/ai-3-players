@@ -1,5 +1,6 @@
 mod board;
 mod game;
+mod heuristics;
 mod players;
 
 use game::Game;

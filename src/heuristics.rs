@@ -1,127 +1,94 @@
-// from typing import List
-//
-// from board import Board
-//
-//
-// class Heuristic:
-//     def evaluate(self, board: Board, player: int) -> int:
-//         raise NotImplementedError
-//
-//
-// class GreedyHeuristic(Heuristic):
-//     def evaluate(self, board: Board, player: int) -> int:
-//         """
-//         Move decision with greedy strategy based on board state.
-//         """
-//         return sum([sum(map(lambda cell: cell == player, row)) for row in board.board])
-//
-//
-// class WeightedSumHeuristic(Heuristic):
-//     weight_table = [
-//         [60,  -30,  25,  25,  25,  25,  25, -30,  60],
-//         [-30, -40, -25, -25, -25, -25, -25, -40, -30],
-//         [25,  -25,   1,   1,   1,   1,   1, -25,  25],
-//         [25,  -25,   1,   1,   1,   1,   1, -25,  25],
-//         [25,  -25,   1,   1,   1,   1,   1, -25,  25],
-//         [25,  -25,   1,   1,   1,   1,   1, -25,  25],
-//         [25,  -25,   1,   1,   1,   1,   1, -25,  25],
-//         [-30, -40, -25, -25, -25, -25, -25, -40, -30],
-//         [60,  -30,  25,  25,  25,  25,  25, -30,  60],
-//     ]
-//
-//     def evaluate(self, board: Board, player: int) -> int:
-//         """
-//         Move decision with weighted sum strategy based on board state.
-//         """
-//         return sum(
-//             [
-//                 sum(map(lambda x: (x[0] == player) * x[1], zip(row, row_weights)))
-//                 for row, row_weights in zip(board.board, self.weight_table)
-//             ]
-//         )
-//
-//
-// class WedgeHeuristic(Heuristic):
-//     weight_table = [
-//         [160, -30, 25, 25, 25, 25, 25, -30, 160],
-//         [-30, -40, -25, -25, -25, -25, -25, -40, -30],
-//         [25, -25, 1, 1, 1, 1, 1, -25, 25],
-//         [25, -25, 1, 1, 1, 1, 1, -25, 25],
-//         [25, -25, 1, 1, 1, 1, 1, -25, 25],
-//         [25, -25, 1, 1, 1, 1, 1, -25, 25],
-//         [25, -25, 1, 1, 1, 1, 1, -25, 25],
-//         [-30, -40, -25, -25, -25, -25, -25, -40, -30],
-//         [160, -30, 25, 25, 25, 25, 25, -30, 160],
-//     ]
-//
-//     def evaluate(self, board: Board, player: int) -> int:
-//         """
-//         Move decision with wedge strategy based on board state.
-//         """
-//         self.weight_table = [
-//             [160, -130, 25, 25, 25, 25, 25, -130, 160],
-//             [-130, -40, -25, -25, -25, -25, -25, -40, -130],
-//             [25, -25, 1, 1, 1, 1, 1, -25, 25],
-//             [25, -25, 1, 1, 1, 1, 1, -25, 25],
-//             [25, -25, 1, 1, 1, 1, 1, -25, 25],
-//             [25, -25, 1, 1, 1, 1, 1, -25, 25],
-//             [25, -25, 1, 1, 1, 1, 1, -25, 25],
-//             [-130, -40, -25, -25, -25, -25, -25, -40, -130],
-//             [160, -130, 25, 25, 25, 25, 25, -130, 160],
-//         ]
-//         if board.board[board.rows-1][board.columns-1] == -1: #right bottom corner is free
-//             if board.board[board.rows-2][board.columns-1] > -1 and board.board[board.rows-2][board.columns-1] != player:
-//                 if board.board[board.rows - 3][board.columns - 1] == -1:
-//                   if board.board[board.rows-4][board.columns-1] > -1 and board.board[board.rows-4][board.columns-1] != player:
-//                       self.weight_table[board.rows - 3][board.columns - 1] += 100
-//             if board.board[board.rows - 1][board.columns - 2] > -1 and board.board[board.rows - 1][
-//                 board.columns - 2] != player:
-//                 if board.board[board.rows - 1][board.columns - 3] == -1:
-//                     if board.board[board.rows - 1][board.columns - 4] > -1 and board.board[board.rows - 1][
-//                         board.columns - 4] != player:
-//                         self.weight_table[board.rows - 1][board.columns - 3] += 100
-//
-//         if board.board[board.rows-1][0] == -1: #left bottom corner is free
-//             if board.board[board.rows-2][0] > -1 and board.board[board.rows-2][0] != player:
-//                 if board.board[board.rows - 3][0] == -1:
-//                   if board.board[board.rows-4][0] > -1 and board.board[board.rows-4][0] != player:
-//                       self.weight_table[board.rows - 3][0] += 100
-//             if board.board[board.rows - 1][1] > -1 and board.board[board.rows - 1][
-//                 1] != player:
-//                 if board.board[board.rows - 1][2] == -1:
-//                     if board.board[board.rows - 1][3] > -1 and board.board[board.rows - 1][
-//                         3] != player:
-//                         self.weight_table[board.rows - 1][2] += 100
-//
-//         if board.board[0][0] == -1:  # left top corner is free
-//             if board.board[1][0] > -1 and board.board[1][
-//                 0] != player:
-//                 if board.board[2][0] == -1:
-//                     if board.board[3][0] > -1 and board.board[3][0] != player:
-//                         self.weight_table[2][0] += 100
-//             if board.board[0][1] > -1 and board.board[0][
-//                 1] != player:
-//                 if board.board[0][2] == -1:
-//                     if board.board[0][3] > -1 and board.board[0][
-//                         3] != player:
-//                         self.weight_table[0][2] += 100
-//
-//         if board.board[0][board.columns - 1] == -1:  # right top corner is free
-//             if board.board[1][board.columns - 1] > -1 and board.board[1][
-//                 board.columns - 1] != player:
-//                 if board.board[2][board.columns - 1] == -1:
-//                     if board.board[3][board.columns - 1] > -1 and board.board[3][board.columns - 1] != player:
-//                         self.weight_table[2][0] += 100
-//             if board.board[0][board.columns - 2] > -1 and board.board[0][
-//                 board.columns - 2] != player:
-//                 if board.board[0][board.columns - 3] == -1:
-//                     if board.board[0][board.columns - 4] > -1 and board.board[0][
-//                         board.columns - 4] != player:
-//                         self.weight_table[0][board.columns - 3] += 100
-//
-//         return sum(
-//             [
-//                 sum(map(lambda x: (x[0] == player) * x[1], zip(row, row_weights)))
-//                 for row, row_weights in zip(board.board, self.weight_table)
-//             ]
-//         )
+use crate::board::BoardState;
+
+pub(crate) fn minimax<F>
+(
+    board: &mut BoardState,
+    depth: usize,
+    maximizing_player: usize,
+    current_player: usize,
+    num_players: usize,
+    turns_passed: usize,
+    heuristic: &F,
+    mut alpha: i32,
+    mut beta: i32,
+) -> i32
+    where
+        F: Fn(&BoardState, usize) -> i32
+{
+    // max depth reached or game has ended
+    if depth == 0 || turns_passed == num_players {
+        return heuristic(&board, current_player);
+    }
+
+    let mut best_eval = i32::MIN;
+    let valid_moves = board.valid_moves(current_player);
+    let next_player = (current_player + 1) % num_players;
+
+    // handle case when player has no valid moves (skip him and continue evaluation)
+    if valid_moves.len() == 0 {
+        return minimax(
+            board,
+            depth - 1,
+            maximizing_player,
+            next_player,
+            num_players,
+            turns_passed + 1,
+            heuristic,
+            alpha,
+            beta,
+        );
+    }
+
+    for (row, col) in valid_moves {
+        let flipped = board.place(row, col, current_player);
+        let evaluation = minimax(
+            board,
+            depth - 1,
+            maximizing_player,
+            next_player,
+            num_players,
+            0,
+            heuristic,
+            alpha,
+            beta,
+        );
+
+        for ((row, col), player) in flipped {
+            board.set(row, col, player);
+        }
+
+        // update best possible evaluation for maximizing player
+        if current_player == maximizing_player {
+            if evaluation > best_eval {
+                best_eval = evaluation;
+            }
+        } else {
+            if evaluation < best_eval {
+                best_eval = evaluation;
+            }
+        }
+
+        // alpha-betta pruning
+        if current_player == maximizing_player {
+            if evaluation > alpha {
+                alpha = evaluation;
+                if beta <= alpha {
+                    break;
+                }
+            }
+        } else {
+            if evaluation < beta {
+                beta = evaluation;
+                if beta <= alpha {
+                    break;
+                }
+            }
+        }
+    }
+
+    0
+}
+
+pub(crate) fn greedy_heuristic(board: &BoardState, player: usize) -> i32 {
+    board.board.iter().filter(|&&x| x == player).count() as i32
+}
