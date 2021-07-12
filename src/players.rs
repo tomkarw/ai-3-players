@@ -77,7 +77,10 @@ where
     F: Fn(&BoardState, usize) -> i32,
 {
     pub(crate) fn new(minimax_depth: usize, heuristic: F) -> Self {
-        AiPlayer { minimax_depth, heuristic }
+        AiPlayer {
+            minimax_depth,
+            heuristic,
+        }
     }
 }
 
@@ -92,14 +95,14 @@ where
         let valid_moves = board.valid_moves(player);
 
         let mut best_eval = i32::MIN;
-        let mut best_move = *valid_moves.iter().next().unwrap();
+        let mut best_move = *valid_moves.get(0).unwrap();
         let next_player = (player + 1) % NUM_PLAYERS;
 
         if self.minimax_depth == 0 {
             return best_move;
         }
 
-        for (row, col) in  valid_moves {
+        for (row, col) in valid_moves {
             board.place(row, col, player);
             let evaluation = minimax(
                 &mut board,

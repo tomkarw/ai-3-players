@@ -11,8 +11,8 @@ fn main() -> Result<(), String> {
     if args.iter().len() != 5 {
         return Err("Wrong number of arguments".to_owned());
     }
-    let minimax_depth = if let Ok(depth) = args.iter().skip(4).next().unwrap().parse() {
-            depth
+    let minimax_depth = if let Ok(depth) = args.get(4).unwrap().parse() {
+        depth
     } else {
         return Err("Unable to parse minimax depth argument".to_owned());
     };

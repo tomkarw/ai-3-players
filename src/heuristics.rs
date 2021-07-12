@@ -1,7 +1,6 @@
 use crate::board::BoardState;
 
-pub(crate) fn minimax<F>
-(
+pub(crate) fn minimax<F>(
     board: &mut BoardState,
     depth: usize,
     maximizing_player: usize,
@@ -12,8 +11,8 @@ pub(crate) fn minimax<F>
     mut alpha: i32,
     mut beta: i32,
 ) -> i32
-    where
-        F: Fn(&BoardState, usize) -> i32
+where
+    F: Fn(&BoardState, usize) -> i32,
 {
     // max depth reached or game has ended
     if depth == 0 || turns_passed == num_players {
@@ -25,7 +24,7 @@ pub(crate) fn minimax<F>
     let next_player = (current_player + 1) % num_players;
 
     // handle case when player has no valid moves (skip him and continue evaluation)
-    if valid_moves.len() == 0 {
+    if valid_moves.is_empty() {
         return minimax(
             board,
             depth - 1,
@@ -62,10 +61,8 @@ pub(crate) fn minimax<F>
             if evaluation > best_eval {
                 best_eval = evaluation;
             }
-        } else {
-            if evaluation < best_eval {
-                best_eval = evaluation;
-            }
+        } else if evaluation < best_eval {
+            best_eval = evaluation;
         }
 
         // alpha-betta pruning
@@ -76,12 +73,10 @@ pub(crate) fn minimax<F>
                     break;
                 }
             }
-        } else {
-            if evaluation < beta {
-                beta = evaluation;
-                if beta <= alpha {
-                    break;
-                }
+        } else if evaluation < beta {
+            beta = evaluation;
+            if beta <= alpha {
+                break;
             }
         }
     }
@@ -94,19 +89,17 @@ pub(crate) fn greedy_heuristic(board: &BoardState, player: usize) -> i32 {
 }
 
 const WEIGHTED_SUM_TABLE: [i32; 81] = [
-    60, -30, 25, 25, 25, 25, 25, -30, 60,
-    -30, -40, -25, -25, -25, -25, -25, -40, -30,
-    25, -25, 1, 1, 1, 1, 1, -25, 25,
-    25, -25, 1, 1, 1, 1, 1, -25, 25,
-    25, -25, 1, 1, 1, 1, 1, -25, 25,
-    25, -25, 1, 1, 1, 1, 1, -25, 25,
-    25, -25, 1, 1, 1, 1, 1, -25, 25,
-    -30, -40, -25, -25, -25, -25, -25, -40, -30,
-    60, -30, 25, 25, 25, 25, 25, -30, 60,
+    60, -30, 25, 25, 25, 25, 25, -30, 60, -30, -40, -25, -25, -25, -25, -25, -40, -30, 25, -25, 1,
+    1, 1, 1, 1, -25, 25, 25, -25, 1, 1, 1, 1, 1, -25, 25, 25, -25, 1, 1, 1, 1, 1, -25, 25, 25, -25,
+    1, 1, 1, 1, 1, -25, 25, 25, -25, 1, 1, 1, 1, 1, -25, 25, -30, -40, -25, -25, -25, -25, -25,
+    -40, -30, 60, -30, 25, 25, 25, 25, 25, -30, 60,
 ];
 
 pub(crate) fn weighted_sum_heuristic(board: &BoardState, player: usize) -> i32 {
-    board.board.iter().enumerate().filter(|&(_, &p)| p == player).fold(0, |sum, (i, _)| {
-        sum + WEIGHTED_SUM_TABLE[i]
-    })
+    board
+        .board
+        .iter()
+        .enumerate()
+        .filter(|&(_, &p)| p == player)
+        .fold(0, |sum, (i, _)| sum + WEIGHTED_SUM_TABLE[i])
 }

@@ -14,8 +14,13 @@ impl Game {
             let player_str = player.as_str();
             match player_str {
                 "human" => players.push(Box::new(Human::new())),
-                "greedy_ai" => players.push(Box::new(AiPlayer::new(minimax_depth, greedy_heuristic))),
-                "weighted_sum_ai" => players.push(Box::new(AiPlayer::new(minimax_depth, weighted_sum_heuristic))),
+                "greedy_ai" => {
+                    players.push(Box::new(AiPlayer::new(minimax_depth, greedy_heuristic)))
+                }
+                "weighted_sum_ai" => players.push(Box::new(AiPlayer::new(
+                    minimax_depth,
+                    weighted_sum_heuristic,
+                ))),
                 x => return Err(format!("'{}' is not valid player type", x)),
             }
         }

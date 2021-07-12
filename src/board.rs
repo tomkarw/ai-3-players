@@ -18,6 +18,7 @@ pub(crate) enum Move {
 /// Represents game board and it's state
 #[derive(Debug, Clone)]
 pub(crate) struct BoardState {
+    // TODO: add iterator over BoardState and make board private
     pub board: Vec<usize>,
     rows: usize,
     columns: usize,
@@ -41,7 +42,7 @@ impl Display for BoardState {
         for i in 0..self.rows {
             write!(f, "{} {}|", i, BG_GREEN)?;
             for j in 0..self.columns {
-                match self.get(i, j){
+                match self.get(i, j) {
                     1 => write!(f, "{}", BG_BLACK)?,
                     2 => write!(f, "{}", BG_WHITE)?,
                     3 => write!(f, "{}", BG_RED)?,
@@ -163,7 +164,7 @@ impl BoardState {
             return Move::Invalid("Placement out of bounds.");
         }
         // square is taken
-        if self.get(row, column)!= EMPTY_TILE {
+        if self.get(row, column) != EMPTY_TILE {
             return Move::Invalid("Square taken.");
         }
         // square not adjacent to any current discs
