@@ -1,5 +1,5 @@
+use crate::algorithms::{greedy_heuristic, weighted_sum_heuristic};
 use crate::board::BoardState;
-use crate::heuristics::{greedy_heuristic, weighted_sum_heuristic};
 use crate::players::{AiPlayer, Human, Player};
 
 pub(crate) struct Game {

@@ -1,7 +1,52 @@
 use crate::board::BoardState;
 
 pub(crate) fn minimax<F>(
-    board: &mut BoardState,
+    board: &BoardState,
+    heuristic: F,
+    player: usize,
+    num_players: usize,
+    minimax_depth: usize,
+) -> (usize, usize)
+where
+    F: Fn(&BoardState, usize) -> i32,
+{
+    // we clone board to keep keep BoardState in get_move API immutable
+    // we do it once, minimax alg will work on this mutable copy
+    let valid_moves = board.valid_moves(player);
+
+    let mut best_eval = i32::MIN;
+    let mut best_move = *valid_moves.get(0).unwrap();
+    let next_player = (player + 1) % num_players;
+
+    if minimax_depth == 0 {
+        return best_move;
+    }
+
+    for (row, col) in valid_moves {
+        let mut board = board.clone();
+        board.place(row, col, player);
+        let evaluation = minimax_base(
+            &board,
+            minimax_depth - 1,
+            player,
+            next_player,
+            num_players,
+            0,
+            &heuristic,
+            i32::MIN,
+            i32::MAX,
+        );
+        if evaluation > best_eval {
+            best_eval = evaluation;
+            best_move = (row, col);
+        }
+    }
+
+    best_move
+}
+
+fn minimax_base<F>(
+    board: &BoardState,
     depth: usize,
     maximizing_player: usize,
     current_player: usize,
@@ -16,7 +61,7 @@ where
 {
     // max depth reached or game has ended
     if depth == 0 || turns_passed == num_players {
-        return heuristic(&board, current_player);
+        return heuristic(board, current_player);
     }
 
     let mut best_eval = i32::MIN;
@@ -25,7 +70,7 @@ where
 
     // handle case when player has no valid moves (skip him and continue evaluation)
     if valid_moves.is_empty() {
-        return minimax(
+        return minimax_base(
             board,
             depth - 1,
             maximizing_player,
@@ -39,9 +84,11 @@ where
     }
 
     for (row, col) in valid_moves {
-        let flipped = board.place(row, col, current_player);
-        let evaluation = minimax(
-            board,
+        // let flipped = board.place(row, col, current_player);
+        let mut board = board.clone();
+        board.place(row, col, current_player);
+        let evaluation = minimax_base(
+            &board,
             depth - 1,
             maximizing_player,
             next_player,
@@ -52,9 +99,9 @@ where
             beta,
         );
 
-        for ((row, col), player) in flipped {
-            board.set(row, col, player);
-        }
+        // for ((row, col), player) in flipped {
+        //     board.set(row, col, player);
+        // }
 
         // update best possible evaluation for maximizing player
         if current_player == maximizing_player {

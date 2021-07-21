@@ -1,8 +1,8 @@
 use std::io;
 use std::io::Write;
 
+use crate::algorithms::minimax;
 use crate::board::{BoardState, Move};
-use crate::heuristics::minimax;
 
 const NUM_PLAYERS: usize = 3;
 
@@ -89,39 +89,13 @@ where
     F: Fn(&BoardState, usize) -> i32,
 {
     fn get_move(&self, board: &BoardState, player: usize) -> (usize, usize) {
-        // we clone board to keep keep BoardState in get_move API immutable
-        // we do it once, minimax alg will work on this mutable copy
-        let mut board = board.clone();
-        let valid_moves = board.valid_moves(player);
-
-        let mut best_eval = i32::MIN;
-        let mut best_move = *valid_moves.get(0).unwrap();
-        let next_player = (player + 1) % NUM_PLAYERS;
-
-        if self.minimax_depth == 0 {
-            return best_move;
-        }
-
-        for (row, col) in valid_moves {
-            board.place(row, col, player);
-            let evaluation = minimax(
-                &mut board,
-                self.minimax_depth - 1,
-                player,
-                next_player,
-                NUM_PLAYERS,
-                0,
-                &self.heuristic,
-                i32::MIN,
-                i32::MAX,
-            );
-            if evaluation > best_eval {
-                best_eval = evaluation;
-                best_move = (row, col);
-            }
-        }
-
-        best_move
+        minimax(
+            board,
+            &self.heuristic,
+            player,
+            NUM_PLAYERS,
+            self.minimax_depth,
+        )
     }
 
     fn print_board(&self, board: &BoardState) {
