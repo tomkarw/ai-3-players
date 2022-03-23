@@ -29,7 +29,7 @@ impl Player for Human {
             io::stdout().flush().unwrap();
             input.clear();
             io::stdin().read_line(&mut input).unwrap();
-            let (row, col) = if let Some((row, col)) = input.split_once(",") {
+            let (row, col) = if let Some((row, col)) = input.split_once(',') {
                 match (
                     row.trim().parse(),
                     col.trim_end_matches('\n').trim().parse(),
@@ -74,7 +74,7 @@ where
 
 impl<F> AiPlayer<F>
 where
-    F: Fn(&BoardState, usize) -> i32,
+    F: Fn(&BoardState, usize) -> i32 + std::marker::Sync,
 {
     pub(crate) fn new(minimax_depth: usize, heuristic: F) -> Self {
         AiPlayer {
@@ -86,7 +86,7 @@ where
 
 impl<F> Player for AiPlayer<F>
 where
-    F: Fn(&BoardState, usize) -> i32,
+    F: Fn(&BoardState, usize) -> i32 + std::marker::Sync,
 {
     fn get_move(&self, board: &BoardState, player: usize) -> (usize, usize) {
         minimax(

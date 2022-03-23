@@ -1,4 +1,5 @@
 use crate::board::BoardState;
+use rayon::iter::{ParallelIterator, IntoParallelRefIterator};
 
 pub(crate) fn minimax<F>(
     board: &BoardState,
@@ -8,23 +9,22 @@ pub(crate) fn minimax<F>(
     minimax_depth: usize,
 ) -> (usize, usize)
 where
-    F: Fn(&BoardState, usize) -> i32,
+    F: Fn(&BoardState, usize) -> i32 + std::marker::Sync,
 {
     // we clone board to keep keep BoardState in get_move API immutable
     // we do it once, minimax alg will work on this mutable copy
     let valid_moves = board.valid_moves(player);
 
-    let mut best_eval = i32::MIN;
-    let mut best_move = *valid_moves.get(0).unwrap();
+    let (best_row, best_col) = *valid_moves.get(0).unwrap();
     let next_player = (player + 1) % num_players;
 
     if minimax_depth == 0 {
-        return best_move;
+        return (best_row, best_col);
     }
 
-    for (row, col) in valid_moves {
+    let ((row, col), _) = valid_moves.par_iter().map(|(row, col)| {
         let mut board = board.clone();
-        board.place(row, col, player);
+        board.place(*row, *col, player);
         let evaluation = minimax_base(
             &board,
             minimax_depth - 1,
@@ -36,13 +36,16 @@ where
             i32::MIN,
             i32::MAX,
         );
-        if evaluation > best_eval {
-            best_eval = evaluation;
-            best_move = (row, col);
+        ((row, col), evaluation)
+    }).reduce(|| ((&best_row, &best_col), i32::MIN), |(best_placement, best_eval), (current_placement, current_eval)| {
+        if current_eval > best_eval {
+            (current_placement, current_eval)
+        } else {
+            (best_placement, best_eval)
         }
-    }
+    });
 
-    best_move
+    (*row, *col)
 }
 
 fn minimax_base<F>(
@@ -53,18 +56,17 @@ fn minimax_base<F>(
     num_players: usize,
     turns_passed: usize,
     heuristic: &F,
-    mut alpha: i32,
-    mut beta: i32,
+    alpha: i32,
+    beta: i32,
 ) -> i32
 where
-    F: Fn(&BoardState, usize) -> i32,
+    F: Fn(&BoardState, usize) -> i32 + std::marker::Sync,
 {
     // max depth reached or game has ended
     if depth == 0 || turns_passed == num_players {
         return heuristic(board, current_player);
     }
 
-    let mut best_eval = i32::MIN;
     let valid_moves = board.valid_moves(current_player);
     let next_player = (current_player + 1) % num_players;
 
@@ -83,11 +85,11 @@ where
         );
     }
 
-    for (row, col) in valid_moves {
+    valid_moves.par_iter().map(|(row, col)| {
         // let flipped = board.place(row, col, current_player);
         let mut board = board.clone();
-        board.place(row, col, current_player);
-        let evaluation = minimax_base(
+        board.place(*row, *col, current_player);
+        minimax_base(
             &board,
             depth - 1,
             maximizing_player,
@@ -97,36 +99,33 @@ where
             heuristic,
             alpha,
             beta,
-        );
+        )
 
-        // for ((row, col), player) in flipped {
-        //     board.set(row, col, player);
+        // // alpha-betta pruning
+        // if current_player == maximizing_player {
+        //     if evaluation > alpha {
+        //         alpha = evaluation;
+        //         if beta <= alpha {
+        //             break;
+        //         }
+        //     }
+        // } else if evaluation < beta {
+        //     beta = evaluation;
+        //     if beta <= alpha {
+        //         break;
+        //     }
         // }
-
+    }).reduce(|| i32::MIN, |best_eval: i32, evaluation: i32| {
         // update best possible evaluation for maximizing player
         if current_player == maximizing_player {
             if evaluation > best_eval {
-                best_eval = evaluation;
+                return evaluation;
             }
         } else if evaluation < best_eval {
-            best_eval = evaluation;
+            return evaluation;
         }
-
-        // alpha-betta pruning
-        if current_player == maximizing_player {
-            if evaluation > alpha {
-                alpha = evaluation;
-                if beta <= alpha {
-                    break;
-                }
-            }
-        } else if evaluation < beta {
-            beta = evaluation;
-            if beta <= alpha {
-                break;
-            }
-        }
-    }
+        best_eval
+    });
 
     0
 }
